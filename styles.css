@@ -1,0 +1,340 @@
+/* ==================== Palette ==================== */
+
+/* Section header (Pinned / Recently Used) */
+.acp-palette-section-header {
+	padding: 6px 16px 3px;
+	font-size: 0.75em;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--text-faint);
+	cursor: default;
+	pointer-events: none;
+}
+
+.acp-palette-item {
+	padding: 4px 8px;
+}
+
+.acp-palette-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.acp-palette-pin-icon {
+	color: var(--color-accent);
+	font-size: 0.85em;
+	flex-shrink: 0;
+}
+
+.acp-palette-name {
+	flex: 1;
+}
+
+.acp-palette-alias-wrap {
+	display: flex;
+	gap: 3px;
+	flex-shrink: 0;
+}
+
+.acp-palette-alias-badge {
+	display: inline-block;
+	padding: 1px 7px;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-radius: 10px;
+	font-size: 0.78em;
+}
+
+/* ==================== Settings tab, shared ==================== */
+
+.acp-desc {
+	color: var(--text-muted);
+	font-size: 0.9em;
+	margin: 4px 0 12px;
+}
+
+.acp-note {
+	color: var(--text-faint);
+	font-size: 0.82em;
+	margin-top: 6px;
+}
+
+/* ==================== Palette shortcut settings ==================== */
+
+.acp-hotkey-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 8px 0;
+}
+
+.acp-hotkey-record-input {
+	padding: 6px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	cursor: pointer;
+	min-width: 220px;
+	font-size: 0.9em;
+}
+
+.acp-hotkey-record-input:focus {
+	border-color: var(--color-accent);
+	outline: none;
+}
+
+.acp-btn {
+	padding: 4px 12px;
+	font-size: 0.85em;
+}
+
+/* ==================== Filter bar ==================== */
+
+.acp-filter-bar {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 10px 0 6px;
+}
+
+.acp-filter-btn {
+	padding: 4px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 20px;
+	background: transparent;
+	color: var(--text-muted);
+	font-size: 0.82em;
+	cursor: pointer;
+	transition: all 0.15s;
+}
+
+.acp-filter-btn:hover {
+	border-color: var(--color-accent);
+	color: var(--text-normal);
+}
+
+.acp-filter-active {
+	background: var(--interactive-accent);
+	border-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+/* ==================== Command search field ==================== */
+
+.acp-search-input {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	margin: 8px 0;
+	box-sizing: border-box;
+}
+
+/* ==================== Command table ==================== */
+
+.acp-table-wrap {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	overflow: hidden;
+	margin-top: 4px;
+}
+
+/* Grid layout: Name | Alias | Hotkey | Enabled */
+.acp-table-header,
+.acp-table-row {
+	display: grid;
+	grid-template-columns: 1fr 200px 130px 72px;
+	align-items: center;
+}
+
+.acp-table-header {
+	background: var(--background-secondary-alt);
+	border-bottom: 2px solid var(--background-modifier-border);
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+.acp-col-header {
+	padding: 8px 12px;
+	font-size: 0.78em;
+	color: var(--text-muted);
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.acp-table-body {
+	max-height: 520px;
+	overflow-y: auto;
+}
+
+.acp-table-row {
+	border-bottom: 1px solid var(--background-modifier-border-focus);
+	min-height: 38px;
+	transition: background 0.1s;
+}
+
+.acp-table-row:last-child {
+	border-bottom: none;
+}
+
+.acp-table-row:hover {
+	background: var(--background-modifier-hover);
+}
+
+.acp-row-disabled .acp-cmd-name,
+.acp-row-disabled .acp-alias-tag,
+.acp-row-disabled .acp-alias-add-link {
+	opacity: 0.4;
+}
+
+.acp-col-name,
+.acp-col-alias,
+.acp-col-hotkey,
+.acp-col-enabled {
+	padding: 5px 12px;
+}
+
+.acp-col-enabled {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.acp-cmd-name {
+	font-size: 0.88em;
+	color: var(--text-normal);
+}
+
+/* ==================== Alias column ==================== */
+
+.acp-alias-cell-inner {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 4px;
+}
+
+.acp-alias-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	padding: 1px 7px;
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-radius: 10px;
+	font-size: 0.78em;
+}
+
+.acp-alias-rm {
+	cursor: pointer;
+	opacity: 0.7;
+	font-size: 1em;
+	line-height: 1;
+}
+
+.acp-alias-rm:hover {
+	opacity: 1;
+}
+
+.acp-alias-add-link {
+	color: var(--text-faint);
+	font-size: 0.8em;
+	cursor: pointer;
+	padding: 1px 5px;
+	border-radius: 3px;
+	white-space: nowrap;
+}
+
+.acp-alias-add-link:hover {
+	color: var(--text-muted);
+	background: var(--background-modifier-hover);
+}
+
+.acp-alias-inline-input {
+	padding: 2px 6px;
+	border: 1px solid var(--color-accent);
+	border-radius: 4px;
+	background: var(--background-primary);
+	color: var(--text-normal);
+	font-size: 0.85em;
+	width: 110px;
+	outline: none;
+}
+
+/* ==================== Hotkey column ==================== */
+
+.acp-hotkey-cell-inner {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.acp-hotkey-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	font-size: 0.82em;
+	font-family: monospace;
+}
+
+.acp-hotkey-rm {
+	cursor: pointer;
+	color: var(--text-faint);
+	font-size: 1em;
+	line-height: 1;
+}
+
+.acp-hotkey-rm:hover {
+	color: var(--text-normal);
+}
+
+.acp-record-hotkey-btn {
+	color: var(--text-faint);
+	font-size: 0.82em;
+	cursor: pointer;
+	padding: 2px 6px;
+	border-radius: 3px;
+	white-space: nowrap;
+}
+
+.acp-record-hotkey-btn:hover {
+	color: var(--text-muted);
+	background: var(--background-modifier-hover);
+}
+
+.acp-hotkey-capture-input {
+	padding: 2px 8px;
+	border: 1px solid var(--color-accent);
+	border-radius: 4px;
+	background: var(--background-primary);
+	color: var(--text-accent);
+	font-size: 0.82em;
+	width: 110px;
+	outline: none;
+	cursor: default;
+}
+
+/* Highlight rows that have a hotkey conflict */
+.acp-row-conflict .acp-hotkey-badge {
+	border-color: var(--color-red);
+	color: var(--color-red);
+}
+
+/* ==================== Misc ==================== */
+
+.acp-more {
+	text-align: center;
+	color: var(--text-muted);
+	font-size: 0.85em;
+	padding: 10px;
+}

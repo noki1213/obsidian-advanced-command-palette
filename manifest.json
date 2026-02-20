@@ -1,0 +1,9 @@
+{
+	"id": "advanced-command-palette",
+	"name": "Advanced Command Palette",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "エイリアス・ピン機能付きの高機能コマンドパレット",
+	"author": "noki",
+	"isDesktopOnly": false
+}
