@@ -5,18 +5,18 @@ const DEFAULT_SETTINGS = {
 	aliases: {},           // { 'commandId': ['alias1', 'alias2'] }
 	pins: [],              // ['commandId1', 'commandId2']
 	disabled: [],          // ['commandId1', 'commandId2']
-	recentlyUsed: [],      // ['commandId1', ...] 最大10件
+	recentlyUsed: [],      // ['commandId1', ...], capped at 10 entries
 	commandHotkeys: {},    // { 'commandId': { modifiers: [], key: '' } }
 	paletteHotkey: null,
 };
 
-// ==================== Plugin main class ====================
+// ==================== Plugin ====================
 
 class AdvancedCommandPalettePlugin extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// Backward compatibility: old setting name hotkey → paletteHotkey
+		// Backwards compatibility: the old `hotkey` setting is now `paletteHotkey`
 		if (this.settings.hotkey && !this.settings.paletteHotkey) {
 			this.settings.paletteHotkey = this.settings.hotkey;
 			delete this.settings.hotkey;
@@ -50,11 +50,11 @@ class AdvancedCommandPaletteModal extends SuggestModal {
 		this.plugin = plugin;
 		this.setPlaceholder('コマンドを検索...');
 
-		// Pin with the P key
+		// Press P to pin
 		this.scope.register([], 'p', (event) => {
 			event.preventDefault();
 			const selected = this.chooser?.values?.[this.chooser?.selectedItem];
-			// Skip when it's the header row or nothing is selected
+			// Ignore header rows and the case where nothing is selected
 			if (!selected || selected.type === 'header') return false;
 
 			const cmd = selected.cmd;
@@ -62,8 +62,8 @@ class AdvancedCommandPaletteModal extends SuggestModal {
 
 			const isPinned = this.plugin.settings.pins.includes(cmd.id);
 			new Notice(isPinned
-				? `ピン留めしました: ${cmd.name}`
-				: `ピン解除しました: ${cmd.name}`
+				? `Pinned: ${cmd.name}`
+				: `Unpinned: ${cmd.name}`
 			);
 
 			this.inputEl.dispatchEvent(new Event('input'));
@@ -75,7 +75,7 @@ class AdvancedCommandPaletteModal extends SuggestModal {
 		const { aliases, pins, disabled, recentlyUsed } = this.plugin.settings;
 		const q = query.toLowerCase().trim();
 
-		// When the query is empty: show only Pinned and Recently Used
+		// Empty query: show only Pinned and Recently Used
 		if (q === '') {
 			const result = [];
 
@@ -100,7 +100,7 @@ class AdvancedCommandPaletteModal extends SuggestModal {
 			return result;
 		}
 
-		// When there's a query: filter all commands and sort by score
+		// Non-empty query: filter every command and sort by score
 		const commands = Object.values(this.app.commands.commands)
 			.filter(cmd => cmd.name && !disabled.includes(cmd.id));
 
@@ -162,7 +162,7 @@ class AdvancedCommandPaletteModal extends SuggestModal {
 	}
 
 	onChooseSuggestion(item) {
-		// Skip the header row
+		// Skip header rows
 		if (item.type === 'header') return;
 
 		const { cmd } = item;
@@ -170,7 +170,7 @@ class AdvancedCommandPaletteModal extends SuggestModal {
 		this.updateRecentlyUsed(cmd.id);
 	}
 
-	// Track recently used commands (up to 10)
+	// Record the command as recently used, keeping at most 10
 	updateRecentlyUsed(commandId) {
 		const recent = this.plugin.settings.recentlyUsed || [];
 		const idx = recent.indexOf(commandId);
@@ -198,7 +198,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 	constructor(app, plugin) {
 		super(app, plugin);
 		this.plugin = plugin;
-		// Filter state (not persisted to settings)
+		// Filter state, deliberately not persisted to settings
 		this.filters = {
 			onlyEnabled: false,
 			onlyCustomized: false,
@@ -227,7 +227,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 			{ key: 'onlyConflicts',  label: 'Show only conflicts' },
 		];
 
-		// Search field
+		// Search box
 		const searchInput = containerEl.createEl('input', {
 			cls: 'acp-search-input',
 			type: 'text',
@@ -254,7 +254,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 				.filter(cmd => cmd.name)
 				.sort((a, b) => a.name.localeCompare(b.name));
 
-			// Filter by text
+			// Text filter
 			if (query) {
 				const q = query.toLowerCase();
 				commands = commands.filter(cmd => {
@@ -264,10 +264,10 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 				});
 			}
 
-			// Apply filters
+			// Apply the active filters
 			commands = this.applyFilters(commands);
 
-			// Put customized entries first
+			// Put customised commands first
 			const customized = commands.filter(cmd =>
 				(this.plugin.settings.aliases[cmd.id] || []).length > 0 ||
 				!!this.plugin.settings.commandHotkeys[cmd.id]
@@ -282,7 +282,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 
 			if (sorted.length > 80) {
 				tbody.createEl('p', {
-					text: `他 ${sorted.length - 80} 件。検索で絞り込んでください。`,
+					text: `${sorted.length - 80} more. Use the search box to narrow the list.`,
 					cls: 'acp-more',
 				});
 			}
@@ -305,7 +305,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		renderTable();
 	}
 
-	// Apply the filters and return the filtered array of commands
+	// Return the commands left after applying the filters
 	applyFilters(commands) {
 		let result = commands;
 
@@ -328,7 +328,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		return result;
 	}
 
-	// Return the IDs of commands that share the same hotkey
+	// Return the ids of commands that share a hotkey with another command
 	getConflictIds() {
 		const map = {};
 		Object.entries(this.plugin.settings.commandHotkeys).forEach(([id, hotkey]) => {
@@ -343,7 +343,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		return conflictIds;
 	}
 
-	// One row of the table
+	// A single table row
 	renderTableRow(tbody, cmd, renderTable) {
 		const isDisabled = this.plugin.settings.disabled.includes(cmd.id);
 		const isConflict = this.getConflictIds().has(cmd.id);
@@ -384,13 +384,13 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		});
 	}
 
-	// Hotkey column content
+	// Contents of the Hotkey column
 	renderHotkeyCell(cell, cmd, renderTable) {
 		cell.empty();
 		const hotkey = this.plugin.settings.commandHotkeys[cmd.id];
 
 		if (hotkey) {
-			// Already set: key name + delete button
+			// Already assigned: key name plus a clear button
 			const inner = cell.createDiv({ cls: 'acp-hotkey-cell-inner' });
 			inner.createSpan({ cls: 'acp-hotkey-badge', text: this.formatHotkey(hotkey) });
 			const rm = inner.createSpan({ cls: 'acp-hotkey-rm', text: '×' });
@@ -400,11 +400,11 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 				await this.plugin.saveSettings();
 				this.clearHotkeyFromObsidian(cmd.id);
 				this.renderHotkeyCell(cell, cmd, renderTable);
-				// Update the conflict display
+				// Refresh the conflict markers
 				renderTable();
 			});
 		} else {
-			// Not set yet: show the Record Hotkey button
+			// Not assigned yet: show the Record Hotkey button
 			const btn = cell.createSpan({ cls: 'acp-record-hotkey-btn', text: 'Record Hotkey' });
 			btn.addEventListener('click', (e) => {
 				e.stopPropagation();
@@ -413,7 +413,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		}
 	}
 
-	// Enter the "waiting for key input" state
+	// Wait for the next key press
 	startHotkeyCapture(cell, cmd, renderTable) {
 		cell.empty();
 		const input = cell.createEl('input', {
@@ -440,7 +440,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 			await this.plugin.saveSettings();
 			this.applyHotkeyToObsidian(cmd.id, hotkey);
 			this.renderHotkeyCell(cell, cmd, renderTable);
-			// Update the conflict display
+			// Refresh the conflict markers
 			renderTable();
 		});
 
@@ -449,7 +449,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		});
 	}
 
-	// Alias column content
+	// Contents of the Alias column
 	renderAliasCell(cell, cmd) {
 		cell.empty();
 
@@ -481,7 +481,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 			const input = wrap.createEl('input', {
 				cls: 'acp-alias-inline-input',
 				type: 'text',
-				placeholder: 'エイリアスを入力...',
+				placeholder: 'Enter an alias...',
 			});
 			input.focus();
 
@@ -507,7 +507,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		});
 	}
 
-	// Convert the key input into an object
+	// Turn a key event into a hotkey object
 	captureHotkey(e) {
 		const modifiers = [];
 		if (e.metaKey) modifiers.push('Meta');
@@ -515,19 +515,19 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		if (e.altKey) modifiers.push('Alt');
 		if (e.shiftKey) modifiers.push('Shift');
 
-		// Ignore a lone modifier key
+		// Ignore a modifier pressed on its own
 		if (['Meta', 'Control', 'Alt', 'Shift'].includes(e.key)) return null;
 
-		// Get the physical key name from e.code (avoids Option+B turning into "∫")
+		// Read the physical key from e.code so Option+B does not come through as ∫
 		const key = this.keyFromCode(e.code, e.key);
 		return { modifiers, key };
 	}
 
-	// Convert e.code into a human-readable key name
+	// Turn an e.code value into a readable key name
 	keyFromCode(code, fallback) {
 		if (code.startsWith('Key'))   return code.slice(3);   // KeyB → B
 		if (code.startsWith('Digit')) return code.slice(5);   // Digit1 → 1
-		if (/^F\d+$/.test(code))      return code;            // F1, F12 など
+		if (/^F\d+$/.test(code))      return code;            // F1, F12, and so on
 		const map = {
 			'Space':        'Space',
 			'Enter':        'Enter',
@@ -554,7 +554,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		return map[code] || fallback;
 	}
 
-	// Convert the hotkey into a display string (Mac symbol format)
+	// Format a hotkey for display using the macOS modifier symbols
 	formatHotkey(hotkey) {
 		const symbolMap = {
 			'Meta':  '⌘',
@@ -568,7 +568,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 		return modStr ? modStr + ' ' + key : key;
 	}
 
-	// Register the hotkey with Obsidian's hotkey manager
+	// Apply the hotkey through Obsidian's hotkey manager
 	applyHotkeyToObsidian(commandId, hotkey) {
 		try {
 			if (this.app.hotkeyManager) {
@@ -580,7 +580,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 				this.app.hotkeyManager.save?.();
 			}
 		} catch (e) {
-			console.log('[Advanced Command Palette] ホットキー反映エラー:', e);
+			console.log('[Advanced Command Palette] failed to apply hotkey:', e);
 		}
 	}
 
@@ -592,7 +592,7 @@ class AdvancedCommandPaletteSettingTab extends PluginSettingTab {
 				this.app.hotkeyManager.save?.();
 			}
 		} catch (e) {
-			console.log('[Advanced Command Palette] ホットキー削除エラー:', e);
+			console.log('[Advanced Command Palette] failed to remove hotkey:', e);
 		}
 	}
 }
